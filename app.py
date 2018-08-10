@@ -6,9 +6,11 @@ from passlib.hash import sha256_crypt
 
 app = Flask(__name__);
 
-# config mysql
+# setting secret key
 app.secret_key = 'lol'
 app.config['SESSION_TYPE'] = 'filesystem'
+
+# config mysql
 app.config["MYSQL_HOST"]='localhost'
 app.config["MYSQL_USER"]='root'
 app.config["MYSQL_PASSWORD"]=''
@@ -62,6 +64,7 @@ def register():
         # create cursor
         cur = mysql.connection.cursor()
 
+        # execute query
         cur.execute("INSERT INTO users(name,email,username,password) VALUES(%s,%s,%s,%s)",(name,email,username,password))
 
         # Commit to debug
@@ -71,9 +74,35 @@ def register():
         cur.close()
 
         flash("You are now registered and can log in", 'success')
-
-        return redirect(url_for('index'))
+        return redirect(url_for('login'))
     return render_template("register.html",form=form)
+
+# User login
+@app.route("/login",methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        # Get form fields
+        username = request.form['username']
+        password_candidate = request.form['password']
+
+        # create cursor
+        cur = mysql.connection.cursor()
+
+        # Get user by username
+        result = cur.execute('SELECT * FROM users where username = %s',[username])
+
+        if(result>0):
+            #Get stored hash
+            data = cur.fetchone()
+            password = data.password
+
+            #compare password
+            if sha256_crypt.verify(password_candidate,password):
+                app.logger.info('PASSWORD MATCHED')
+        else:
+            app.logger.info("No such user")
+
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(debug=True);
