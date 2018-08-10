@@ -46,6 +46,12 @@ def article(id):
 def dashboard():
     return render_template('dashboard.html')
 
+# logout
+@app.route("/logout")
+def logout():
+    session.clear();
+    flash("You are now logged out","success")
+    return redirect(url_for('login'))
 
 class RegisterForm(Form):
     name = StringField('Name', validators=[validators.Length(min=1,max=50)])
