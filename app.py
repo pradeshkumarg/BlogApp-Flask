@@ -74,6 +74,13 @@ def register():
         # create cursor
         cur = mysql.connection.cursor()
 
+        result = cur.execute('SELECT * FROM users where username = %s',[username])
+        #Check if username is valid
+        if(result>0):
+            flash('Username Already Taken','danger')
+            # error = 'Username Already Taken'
+            return redirect(url_for('register'))
+
         # execute query
         cur.execute("INSERT INTO users(name,email,username,password) VALUES(%s,%s,%s,%s)",(name,email,username,password))
 
