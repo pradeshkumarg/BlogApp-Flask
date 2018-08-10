@@ -2,7 +2,6 @@
 
 {% block body  %}
 <h1>Login</h1>
-{% include 'includes/_messages.html' %}
 <form action="" method="POST">
   <div class="form-group">
     <label>Username</label>
@@ -12,7 +11,7 @@
     <label>Password</label>
     <input type="password" name="password" class="form-control" value="{{request.form.password}}">
   </div>
-  <button type="submit" class="btn btn-primary"></button>
+  <button type="submit" class="btn btn-primary">Login</button>
 
 </form>
 {% endblock %}

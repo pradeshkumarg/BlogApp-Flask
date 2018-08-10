@@ -42,6 +42,10 @@ def articles():
 def article(id):
         return render_template('article.html', id = id);
 
+@app.route("/dashboard")
+def dashboard():
+    return render_template('dashboard.html')
+
 
 class RegisterForm(Form):
     name = StringField('Name', validators=[validators.Length(min=1,max=50)])
@@ -94,14 +98,27 @@ def login():
         if(result>0):
             #Get stored hash
             data = cur.fetchone()
-            password = data.password
+            password = data['password']
 
             #compare password
             if sha256_crypt.verify(password_candidate,password):
+                # password matched
                 app.logger.info('PASSWORD MATCHED')
+                session['logged_in'] = True
+                session['username'] = username
+                flash('You are now logged in', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                app.logger.info('PASSWORD DOES NOT MATCHED')
+                error = 'Invalid login'
+                return render_template('login.html',error=error)
         else:
             app.logger.info("No such user")
+            error = 'Username not found'
+            return render_template('login.html',error=error)
 
+        # close connection
+        cur.close()
     return render_template('login.html')
 
 if __name__ == '__main__':
