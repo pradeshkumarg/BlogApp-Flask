@@ -20,8 +20,6 @@ piston-mini-client==0.7.5
 plainbox==0.25
 ptyprocess==0.5
 pyasn1==0.1.9
-pycrypto==2.6.1
-pycups==1.9.73
 PyJWT==1.3.0
 pyparsing==2.0.3
 pysmbc==1.0.15.5
