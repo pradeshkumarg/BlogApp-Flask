@@ -1,5 +1,0 @@
-pymysql == 0.8.0
-flask
-flask-mysqldb
-flask-WTF
-passlib
