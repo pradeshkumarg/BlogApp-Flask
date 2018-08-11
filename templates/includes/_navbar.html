@@ -22,6 +22,9 @@
     <ul class="nav navbar-nav navbar-right">
       {% if session.logged_in %}
       <li class="nav-item navbar-right">
+        <a class="nav-link" href="/dashboard">Dashboard</a>
+      </li>
+      <li class="nav-item navbar-right">
         <a class="nav-link" href="/logout">Sign Out</a>
       </li>
       {% else %}

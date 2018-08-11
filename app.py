@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from data import Articles
+# from data import Articles
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
@@ -21,7 +21,7 @@ app.config["MYSQL_CURSORCLASS"]='DictCursor' # for Dictionary
 # init mysql
 mysql = MySQL(app)
 
-Articles = Articles();
+# Articles = Articles();
 
 # root
 @app.route("/")
@@ -41,13 +41,32 @@ def about():
 # articles route
 @app.route("/articles")
 def articles():
+        # create cursor
+        cur = mysql.connection.cursor()
+
+        # execute query
+        result = cur.execute('SELECT id,title FROM articles')
+
+        if(result>0):
+            Articles = cur.fetchall()
+
         return render_template('articles.html', articles = Articles)
 
 # article route
 @app.route("/article/<string:id>")
 def article(id):
-        return render_template('article.html', id = id);
+        # create cursor
+        cur = mysql.connection.cursor()
 
+        # execute query
+        result = cur.execute('SELECT * FROM articles where id = %s',(id))
+
+        if(result>0):
+            article = cur.fetchone()
+
+        return render_template('article.html', article = article);
+
+# register form class
 class RegisterForm(Form):
     name = StringField('Name', validators=[validators.Length(min=1,max=50)])
     username  = StringField('Username', validators=[validators.Length(min=4,max=25)])
@@ -149,10 +168,42 @@ def dashboard():
 
 # logout
 @app.route("/logout")
+@is_logged_in
 def logout():
     session.clear();
     flash("You are now logged out","success")
     return redirect(url_for('login'))
+
+# Article form class
+class ArticleForm(Form):
+    title = StringField('Title', validators=[validators.Length(min=1,max=200)])
+    body  = TextAreaField('Body', validators=[validators.Length(min=30)])
+
+# add article route
+@app.route("/add_article", methods = ['GET','POST'])
+@is_logged_in
+def add_article():
+    form = ArticleForm(request.form)
+    if(request.method == 'POST' and form.validate()):
+        title = form.title.data
+        body = form.body.data
+
+        # create cursor
+        cur = mysql.connection.cursor()
+
+        # execute
+        cur.execute('INSERT into articles(title,body,author) values(%s,%s,%s)',(title,body,session['username']))
+
+        # Commit
+        mysql.connection.commit()
+
+        # close connection
+        cur.close()
+
+        flash("Article Created Successfully","success")
+        return redirect(url_for('dashboard'))
+
+    return render_template("add_article.html",form=form)
 
 if __name__ == '__main__':
     app.run(debug=True);
