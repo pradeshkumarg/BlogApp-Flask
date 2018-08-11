@@ -22,26 +22,32 @@ mysql = MySQL(app)
 
 Articles = Articles();
 
+# root
 @app.route("/")
 def index():
     return render_template('home.html')
 
+# layout route
 @app.route("/layout")
 def layouts():
     return render_template('layout.html')
 
+# about route
 @app.route("/about")
 def about():
         return render_template('about.html')
 
+# articles route
 @app.route("/articles")
 def articles():
         return render_template('articles.html', articles = Articles)
 
+# article route
 @app.route("/article/<string:id>")
 def article(id):
         return render_template('article.html', id = id);
 
+# dashboard route
 @app.route("/dashboard")
 def dashboard():
     return render_template('dashboard.html')
