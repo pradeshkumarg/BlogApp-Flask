@@ -38,34 +38,6 @@ def layouts():
 def about():
         return render_template('about.html')
 
-# articles route
-@app.route("/articles")
-def articles():
-        # create cursor
-        cur = mysql.connection.cursor()
-
-        # execute query
-        result = cur.execute('SELECT id,title FROM articles')
-
-        if(result>0):
-            Articles = cur.fetchall()
-
-        return render_template('articles.html', articles = Articles)
-
-# article route
-@app.route("/article/<string:id>")
-def article(id):
-        # create cursor
-        cur = mysql.connection.cursor()
-
-        # execute query
-        result = cur.execute('SELECT * FROM articles where id = %s',(id))
-
-        if(result>0):
-            article = cur.fetchone()
-
-        return render_template('article.html', article = article);
-
 # register form class
 class RegisterForm(Form):
     name = StringField('Name', validators=[validators.Length(min=1,max=50)])
@@ -204,6 +176,36 @@ def add_article():
         return redirect(url_for('dashboard'))
 
     return render_template("add_article.html",form=form)
+
+# articles route
+@app.route("/articles")
+@is_logged_in
+def articles():
+        # create cursor
+        cur = mysql.connection.cursor()
+
+        # execute query
+        result = cur.execute('SELECT id,title FROM articles')
+
+        if(result>0):
+            Articles = cur.fetchall()
+
+        return render_template('articles.html', articles = Articles)
+
+# article route
+@app.route("/article/<string:id>")
+@is_logged_in
+def article(id):
+        # create cursor
+        cur = mysql.connection.cursor()
+
+        # execute query
+        result = cur.execute('SELECT * FROM articles where id = %s',(id))
+
+        if(result>0):
+            article = cur.fetchone()
+
+        return render_template('article.html', article = article);
 
 if __name__ == '__main__':
     app.run(debug=True);
