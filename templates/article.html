@@ -4,11 +4,13 @@
 
 <br><br><br>
 
-  <h2>{{article.body}}</h2>
+  <h1>{{article.title}}</h1>
+  <small>Written by {{article.author}} on {{article.create_date}}</small>
 
-<br><br><br>
+  <hr>
 
-  <div class="author text-center">
-    <h1>Written by:</h1><span>{{article.author}}</span>
+  <div>
+    {{article.body | safe}}
   </div>
+
 {% endblock %}
