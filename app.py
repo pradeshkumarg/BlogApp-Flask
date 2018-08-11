@@ -190,6 +190,63 @@ def add_article():
 
     return render_template("add_article.html",form=form)
 
+# edit article route
+@app.route("/edit_article/<string:id>", methods = ['GET','POST'])
+@is_logged_in
+def edit_article(id):
+    # create cursor
+    cur = mysql.connection.cursor()
+
+    # get article by id
+    result = cur.execute("SELECT * from articles where id = %s",[id])
+
+    article = cur.fetchone()
+
+    form = ArticleForm(request.form)
+
+    # populate article form fields
+    form.title.data = article['title']
+    form.body.data = article['body']
+
+    if(request.method == 'POST' and form.validate()):
+        title = request.form['title']
+        body = request.form['body']
+
+        # execute
+        cur.execute('update articles set title=%s, body=%s where id = %s',[title,body,id])
+
+        # Commit
+        mysql.connection.commit()
+
+        # close connection
+        cur.close()
+
+        flash("Article Updated Successfully","success")
+        return redirect(url_for('dashboard'))
+
+    return render_template("edit_article.html",form=form)
+
+# delete article
+@app.route("/delete_article/<string:id>", methods = ['POST'])
+@is_logged_in
+def delete_article(id):
+    # create cursor
+    cur = mysql.connection.cursor()
+
+    # get article by id
+    result = cur.execute("delete from articles where id = %s",[id])
+
+    # Commit
+    mysql.connection.commit()
+
+    # close connection
+    cur.close()
+
+    flash("Article deleted","success ")
+
+    return redirect(url_for('dashboard'))
+
+
 # articles route
 @app.route("/articles")
 @is_logged_in
@@ -200,8 +257,9 @@ def articles():
         # execute query
         result = cur.execute('SELECT id,title FROM articles')
 
-        if(result>0):
-            Articles = cur.fetchall()
+        Articles = cur.fetchall()
+
+        cur.close()
 
         return render_template('articles.html', articles = Articles)
 
