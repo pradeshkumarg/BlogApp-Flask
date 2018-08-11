@@ -48,19 +48,6 @@ def articles():
 def article(id):
         return render_template('article.html', id = id);
 
-# dashboard route
-@app.route("/dashboard")
-@is_logged_in
-def dashboard():
-    return render_template('dashboard.html')
-
-# logout
-@app.route("/logout")
-def logout():
-    session.clear();
-    flash("You are now logged out","success")
-    return redirect(url_for('login'))
-
 class RegisterForm(Form):
     name = StringField('Name', validators=[validators.Length(min=1,max=50)])
     username  = StringField('Username', validators=[validators.Length(min=4,max=25)])
@@ -146,14 +133,26 @@ def login():
 def is_logged_in(f):
     @wraps(f)
     def wrap(*args,**kwargs):
-        if logged_in in session:
+        if 'logged_in' in session:
+        # if(session['logged_in'] == True):
             return f(*args,**kwargs)
-        else
+        else:
             flash("Unauthorized, Please login","danger")
             return redirect(url_for('login'))
     return wrap
 
+# dashboard route
+@app.route("/dashboard")
+@is_logged_in
+def dashboard():
+    return render_template('dashboard.html')
 
+# logout
+@app.route("/logout")
+def logout():
+    session.clear();
+    flash("You are now logged out","success")
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True);
